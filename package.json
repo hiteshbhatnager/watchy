@@ -1,0 +1,13 @@
+{
+  "name": "watchy",
+  "version": "1.0.0",
+  "description": "this app is only for learning (backend fronted database mean fullstack production grad project)",
+  "license": "ISC",
+  "author": "hitesh bhatnager",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
