@@ -1,12 +1,14 @@
-// require(dontenv).config({ Path: './env' })
-import dontenv from 'dotenv';
-import connectDB from './db/index.js';
+// require(dontenv).config({ Path: '../env' })
+import dns from "node:dns";
 
-dontenv.config({
-    path: './env'
-})
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
-connectDB()
+import dotenv from "dotenv";
+import connectDB from "./db/index.js";
+
+dotenv.config({ path: "./.env" });
+
+await connectDB();
 
 // const app = express();
 
