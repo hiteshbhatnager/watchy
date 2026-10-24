@@ -12,6 +12,14 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"))
 app.use(cookieParser());
 
+//import router 
 
+import userRouter from "./routes/user.router.js"
+
+//router declaration
+
+app.use("/api/v1/user", userRouter);
+
+//https://localhost:8000/api/v1/user/register
 
 export { app };
