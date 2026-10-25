@@ -10,6 +10,13 @@ const registerUser = asyncHandler(async (req, res) => {
     // remove pass and refresh token feild from response 
     // check for user creation 
     // return res
+
+    const { userName, email, password, fullname } = req.body
+    console.log({
+        "email": email,
+    })
+
+
 })
 
 export { registerUser }
