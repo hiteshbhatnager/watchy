@@ -1,5 +1,11 @@
 import { v2 as cloudinary } from 'cloudinary';
 
+cloudinary.config({
+    cloud_name: Process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: Process.env.CLOUDINARY_API_KEY,
+    api_secret: Process.env.CLOUDINARY_API_SECRET
+});
+
 const uploadOnCloudinary = async (localFilePath) => {
     try {
         if (localFilePath) return null
@@ -13,8 +19,4 @@ const uploadOnCloudinary = async (localFilePath) => {
     }
 }
 
-cloudinary.config({
-    cloud_name: Process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: Process.env.CLOUDINARY_API_KEY,
-    api_secret: Process.env.CLOUDINARY_API_SECRET
-});
+export { uploadOnCloudinary }
