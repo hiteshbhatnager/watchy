@@ -15,17 +15,18 @@ const registerUser = asyncHandler(async (req, res) => {
     // check for user creation 
     // return res
 
-    const { userName, email, password, fullname } = req.body
+    const { fullname, email, userName, password } = req.body
     console.log({
         "email": email,
     })
+
     if (
-        [userName, email, password, fullname].some((feild) => feild.trim() == "")
+        [fullname, email, userName, password].some((feild) => feild?.trim() === "")
     ) {
         throw new ApiError(400, "all feild are required")
     }
 
-    const existedUser = User.findOne(
+    const existedUser = await User.findOne(
         { $or: [{ email }, { userName }] }
     )
 
