@@ -4,16 +4,17 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiResponse.js";
 
+// get user detail from frontend
+// check validation for detail
+// check user already exist or not : username, email
+// check avtar image ,
+// upload them in cloudinary
+// create user object in db 
+// remove pass and refresh token feild from response 
+// check for user creation 
+// return res
+
 const registerUser = asyncHandler(async (req, res) => {
-    // get user detail from frontend
-    // check validation for detail
-    // check user already exist or not : username, email
-    // check avtar image ,
-    // upload them in cloudinary
-    // create user object in db 
-    // remove pass and refresh token feild from response 
-    // check for user creation 
-    // return res
 
     const { fullname, email, userName, password } = req.body
     console.log({
@@ -74,6 +75,16 @@ const registerUser = asyncHandler(async (req, res) => {
     return res.status(201).json(
         new apiResponse(200, createdUser, "user register sucessfully", true)
     )
+})
+
+//get email/username , password from frontend
+//check field are not empty
+//check is user exist in db
+//check active sessions
+//remove pass and refresh token from feild
+//return res 
+const loginUser = asyncHandler(async (req, res) => {
+
 })
 
 export { registerUser }
