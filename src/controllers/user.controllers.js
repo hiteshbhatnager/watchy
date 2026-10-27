@@ -6,9 +6,16 @@ import { apiResponse } from "../utils/apiResponse.js";
 
 const genrateRefreshAndAccessToken = async (userId) => {
     try {
+        const user = User.findById(userId)
+        const accessToken = user.genrateAccessToken()
+        const refreshToken = user.genrateRefreshToken()
 
+        user.refreshToken = refreshToken
+        await user.save({ vaildateBeforeSave: false })
+
+        return { accessToken, refreshToken }
     } catch (error) {
-
+        throw new ApiError(500, "somthing went in genrating refresh and access token")
     }
 }
 
@@ -32,7 +39,7 @@ const registerUser = asyncHandler(async (req, res) => {
     if (
         [fullname, email, userName, password].some((feild) => feild?.trim() === "")
     ) {
-        throw new ApiError(400, "all feild are required")
+        throw new ApiError(400, "fullname email userName password are required")
     }
 
     const existedUser = await User.findOne(
@@ -60,7 +67,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
     if (!avatar) {
-        throw new ApiError(400, "avatar image is required")
+        throw new ApiError(500, "avatar is not upload on cloudinary")
     }
 
     const user = await User.create({
@@ -112,6 +119,34 @@ const loginUser = asyncHandler(async (req, res) => {
     if (!isPassValid) {
         throw new ApiError(401, "user credential are invalid")
     }
+
+    const { accessToken, refreshToken } = await genrateRefreshAndAccessToken(user._id)
+
+    const logedInUser = await User.findById(user._id).select("-password -refreshToken")
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return
+    res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new apiResponse(
+                200,
+                {
+                    user: logedInUser, accessToken, refreshToken
+                },
+                "user logged in successfuly"
+            )
+        )
+})
+
+const logoutUser = asyncHandler(async (req, res) => {
+    User.findById()
 })
 
 export { registerUser, loginUser }
