@@ -4,6 +4,14 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiResponse.js";
 
+const genrateRefreshAndAccessToken = async (userId) => {
+    try {
+
+    } catch (error) {
+
+    }
+}
+
 // get user detail from frontend
 // check validation for detail
 // check user already exist or not : username, email
@@ -77,14 +85,33 @@ const registerUser = asyncHandler(async (req, res) => {
     )
 })
 
-//get email/username , password from frontend
-//check field are not empty
+//get email/username , password from frontend (req.body => data)
+//check user
 //check is user exist in db
-//check active sessions
-//remove pass and refresh token from feild
-//return res 
+//check password
+//genrate access and refresh token 
+//send cookies
 const loginUser = asyncHandler(async (req, res) => {
 
+    const { email, userName, password } = req.body;
+
+    if (!email || !userName) {
+        throw new ApiError(400, "enter user name or email to login user")
+    }
+
+    const user = await User.findOne({
+        $or: [{ email }, { userName }]
+    })
+
+    if (!user) {
+        throw new ApiError(402, "user not exist with this username or email")
+    }
+
+    const isPassValid = await user.isPasswordCorrect(password);
+
+    if (!isPassValid) {
+        throw new ApiError(401, "user credential are invalid")
+    }
 })
 
-export { registerUser }
+export { registerUser, loginUser }
