@@ -1,6 +1,6 @@
 import express from "express";
 import { loginUser, logoutUser, registerUser } from "../controllers/user.controllers.js";
-
+import verifyJwt from "../middleware/auth.middleware.js"
 import { upload } from "../middleware/multer.middleware.js"
 
 const router = express.Router()
