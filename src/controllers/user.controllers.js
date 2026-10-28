@@ -6,12 +6,12 @@ import { apiResponse } from "../utils/apiResponse.js";
 
 const genrateRefreshAndAccessToken = async (userId) => {
     try {
-        const user = User.findById(userId)
+        const user = await User.findById(userId)
         const accessToken = user.genrateAccessToken()
         const refreshToken = user.genrateRefreshToken()
 
         user.refreshToken = refreshToken
-        await user.save({ vaildateBeforeSave: false })
+        await user.save({ validateBeforeSave: false });
 
         return { accessToken, refreshToken }
     } catch (error) {
@@ -46,16 +46,12 @@ const registerUser = asyncHandler(async (req, res) => {
         { $or: [{ email }, { userName }] }
     )
 
-    if (existedUser) {
-        throw new ApiError(409, "user already existed with this email or username")
-    }
-
     const avatarLocalPath = req?.files?.avatar[0]?.path;
     //const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
     let coverImageLocalPath;
 
-    if (req.files && Array.isArray(req.files.coverImage[0]) && req.files.coverImage.length > 0) {
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
         coverImageLocalPath = req.files.coverImage[0].path
     }
 
@@ -68,6 +64,10 @@ const registerUser = asyncHandler(async (req, res) => {
 
     if (!avatar) {
         throw new ApiError(500, "avatar is not upload on cloudinary")
+    }
+
+    if (existedUser) {
+        throw new ApiError(409, "user already existed with this email or username")
     }
 
     const user = await User.create({
@@ -102,7 +102,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const { email, userName, password } = req.body;
 
-    if (!email || !userName) {
+    if (!(email || userName)) {
         throw new ApiError(400, "enter user name or email to login user")
     }
 
