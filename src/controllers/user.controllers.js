@@ -19,16 +19,6 @@ const genrateRefreshAndAccessToken = async (userId) => {
     }
 }
 
-// get user detail from frontend
-// check validation for detail
-// check user already exist or not : username, email
-// check avtar image ,
-// upload them in cloudinary
-// create user object in db 
-// remove pass and refresh token feild from response 
-// check for user creation 
-// return res
-
 const registerUser = asyncHandler(async (req, res) => {
 
     const { fullname, email, userName, password } = req.body
@@ -92,12 +82,6 @@ const registerUser = asyncHandler(async (req, res) => {
     )
 })
 
-//get email/username , password from frontend (req.body => data)
-//check user
-//check is user exist in db
-//check password
-//genrate access and refresh token 
-//send cookies
 const loginUser = asyncHandler(async (req, res) => {
 
     const { email, userName, password } = req.body;
