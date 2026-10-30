@@ -4,6 +4,11 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiResponse.js";
 
+const options = {
+    httpOnly: true,
+    secure: true,
+}
+
 const genrateRefreshAndAccessToken = async (userId) => {
     try {
         const user = await User.findById(userId)
@@ -108,11 +113,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const logedInUser = await User.findById(user._id).select("-password -refreshToken")
 
-    const options = {
-        httpOnly: true,
-        secure: true
-    }
-
     return res
         .status(200)
         .cookie("accessToken", accessToken, options)
@@ -141,11 +141,6 @@ const logoutUser = asyncHandler(async (req, res) => {
         }
     )
 
-    const options = {
-        httpOnly: true,
-        secure: true
-    }
-
     return res
         .status(200)
         .clearCookie("accessToken", options)
@@ -154,44 +149,44 @@ const logoutUser = asyncHandler(async (req, res) => {
 })
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-    const incommingRefreshToken = req.cookies.refreshAccessToken || req.body.refreshToken
 
-    if (!incommingRefreshToken) {
-        throw new ApiError(401, "unautherized request")
-    }
+    try {
+        const incommingRefreshToken = req.cookies.refreshAccessToken || req.body.refreshToken
 
-    const decodedToken = jwt.verify(
-        incommingRefreshToken,
-        process.env.REFRESH_TOKEN_SECRET
-    )
+        if (!incommingRefreshToken) {
+            throw new ApiError(401, "unautherized request")
+        }
 
-    const user = await User.findById(decodedToken._id)
-
-    if (!user) {
-        throw new ApiError(401, "invalid refresh token")
-    }
-
-    if (incommingRefreshToken == user?.refreshToken) {
-        throw new ApiError(401, "refresh token is used of expired")
-    }
-
-    const options = {
-        httpOnly: true,
-        secure: true,
-    }
-
-    const { accessToken, newRefreshToken } = await genrateRefreshAndAccessToken(user._id)
-
-    return res
-        .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", newRefreshToken, options)
-        .json(
-            new apiResponse(
-                200,
-                { accessToken, newRefreshToken }
-            )
+        const decodedToken = jwt.verify(
+            incommingRefreshToken,
+            process.env.REFRESH_TOKEN_SECRET
         )
+
+        const user = await User.findById(decodedToken._id)
+
+        if (!user) {
+            throw new ApiError(401, "invalid refresh token")
+        }
+
+        if (incommingRefreshToken == user?.refreshToken) {
+            throw new ApiError(401, "refresh token is used of expired")
+        }
+
+        const { accessToken, newRefreshToken } = await genrateRefreshAndAccessToken(user._id)
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", newRefreshToken, options)
+            .json(
+                new apiResponse(
+                    200,
+                    { accessToken, newRefreshToken }
+                )
+            )
+    } catch (error) {
+        throw new ApiError(401, error?.message || "Invalid refresh token")
+    }
 })
 
-export { registerUser, loginUser, logoutUser }
+export { registerUser, loginUser, logoutUser, refreshAccessToken }
