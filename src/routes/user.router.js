@@ -20,6 +20,7 @@ router.route("/register").post(
 )
 
 router.route("/login").post(loginUser)
+router.route("/")
 
 //secured route
 
