@@ -1,7 +1,7 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary, deleteFileFromCloudinary } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiResponse.js";
 
 const options = {
@@ -242,11 +242,11 @@ const updateUserDetail = asyncHandler(async (req, res) => {
 const updateAvatar = asyncHandler(async (req, res) => {
     const avatarLocalPath = req.file?.path
 
-    if (avatarLocalPath) {
+    if (!avatarLocalPath) {
         throw new ApiError(400, "file is missing")
     }
 
-    const avatar = uploadOnCloudinary(avatarLocalPath)
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
 
     if (!avatar.url) {
         throw new ApiError(400, "error while uploding file on cloudinary")
@@ -262,6 +262,13 @@ const updateAvatar = asyncHandler(async (req, res) => {
         { new: true }
     ).select("-password")
 
+    const avatarPublicId = avatar?.public_id
+
+    if (!avatarPublicId) {
+        throw new ApiError(400, "avatar public id not available")
+    }
+    await deleteFileFromCloudinary(avatarPublicId)
+
     return res
         .status(200)
         .json(new apiResponse(201, user, "avatar image upload successfully"))
@@ -270,11 +277,11 @@ const updateAvatar = asyncHandler(async (req, res) => {
 const updateCover = asyncHandler(async (req, res) => {
     const coverLocalPath = req.file?.path
 
-    if (coverLocalPath) {
+    if (!coverLocalPath) {
         throw new ApiError(400, "file is missing")
     }
 
-    const cover = uploadOnCloudinary(coverLocalPath)
+    const cover = await uploadOnCloudinary(coverLocalPath)
 
     if (!cover.url) {
         throw new ApiError(400, "error while uploding file on cloudinary")
@@ -289,6 +296,13 @@ const updateCover = asyncHandler(async (req, res) => {
         },
         { new: true }
     ).select("-password")
+
+    const coverPublicId = cover?.public_id
+
+    if (!coverPublicId) {
+        throw new ApiError(400, "cover public id not available")
+    }
+    await deleteFileFromCloudinary(coverPublicId)
 
     return res
         .status(200)

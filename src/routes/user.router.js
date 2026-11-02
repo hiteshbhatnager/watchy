@@ -1,7 +1,19 @@
 import express from "express";
-import { loginUser, logoutUser, registerUser, refreshAccessToken } from "../controllers/user.controllers.js";
+import {
+    registerUser,
+    loginUser,
+    logoutUser,
+    refreshAccessToken,
+    changeCurrentUserPass,
+    getCurrentUser,
+    updateUserDetail,
+    updateAvatar,
+    updateCover
+} from "../controllers/user.controllers.js";
+
 import verifyJwt from "../middleware/auth.middleware.js"
 import { upload } from "../middleware/multer.middleware.js"
+import { get } from "mongoose";
 
 const router = express.Router()
 
@@ -20,12 +32,22 @@ router.route("/register").post(
 )
 
 router.route("/login").post(loginUser)
-router.route("/")
+
 
 //secured route
 
 router.route("/logout").post(verifyJwt, logoutUser)
 
 router.route("/refresh-token").post(refreshAccessToken)
+
+router.route("/change-password").post(verifyJwt, changeCurrentUserPass)
+
+router.route("/get-current-user").post(verifyJwt, getCurrentUser)
+
+router.route("/update-profile").post(verifyJwt, updateUserDetail)
+
+router.route("/update-avatar").post(upload.single("avatar"), updateAvatar)
+
+router.route("/update-cover").post(upload.single("cover"), updateCover)
 
 export default router
