@@ -13,7 +13,6 @@ import {
 
 import verifyJwt from "../middleware/auth.middleware.js"
 import { upload } from "../middleware/multer.middleware.js"
-import { get } from "mongoose";
 
 const router = express.Router()
 
