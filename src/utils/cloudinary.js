@@ -4,7 +4,7 @@ import fs from 'fs'
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 const uploadOnCloudinary = async (localFilePath) => {
@@ -29,9 +29,10 @@ const uploadOnCloudinary = async (localFilePath) => {
 const deleteFileFromCloudinary = async (publicId) => {
     try {
         if (!publicId) return
-
+        fs.unlinkSync(publicId) //remove the localy saved temporary file as the upload operation
         await cloudinary.uploader.destroy(publicId)
     } catch (error) {
+        fs.unlinkSync(publicId) //remove the localy saved temporary file as the upload operation
         console.error("error on deleting file from cloudinary")
         throw error
     }

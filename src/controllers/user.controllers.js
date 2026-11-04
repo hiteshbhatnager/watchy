@@ -191,25 +191,31 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 })
 
 const changeCurrentUserPass = asyncHandler(async (req, res) => {
-    const { oldPass, newPass, confPass } = req.body
-    const user = await User.findById(req.user?._id)
 
-    if (!(newPass == confPass)) {
-        throw new ApiError(400, "enter valid password")
+    try {
+        const { oldPass, newPass, confPass } = req.body
+
+        const user = await User.findById(req.user?._id)
+
+        if (!(newPass == confPass)) {
+            throw new ApiError(400, "enter valid conform password")
+        }
+
+        const isPassCorrect = await user.isPasswordCorrect(oldPass)
+
+        if (!isPassCorrect) {
+            throw new ApiError(401, "incorrect password")
+        }
+
+        user.password = newPass
+        await user.save({ validateBeforeSave: false })
+
+        return res
+            .status(200)
+            .json(new apiResponse(200, {}, "password change successfully"))
+    } catch (error) {
+        throw new ApiError(400, error?.message || "Failed to change password")
     }
-
-    const isPasswordCorrect = user.isPasswordCorrect(oldPass)
-
-    if (!isPasswordCorrect) {
-        throw new ApiError(401, "incorrect password")
-    }
-
-    user.password = newPass
-    await user.save({ validateBeforeSave: false })
-
-    return res
-        .status(200)
-        .json(new apiResponse(200, {}, "password change successfully"))
 })
 
 const getCurrentUser = asyncHandler(async (req, res) => {
@@ -224,12 +230,12 @@ const updateUserDetail = asyncHandler(async (req, res) => {
     if (!(fullname && email)) {
         throw new ApiError(400, "enter all feilds")
     }
-    const user = User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set: {
-                fullname,
-                email
+                fullname: fullname,
+                email: email
             }
         },
         { new: true }
@@ -237,42 +243,49 @@ const updateUserDetail = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new apiResponse(201, "profile updated successfully"))
+        .json(new apiResponse(200, user, "profile updated successfully"))
 })
 
 const updateAvatar = asyncHandler(async (req, res) => {
+
     const avatarLocalPath = req.file?.path
 
     if (!avatarLocalPath) {
-        throw new ApiError(400, "file is missing")
+        throw new ApiError(400, "Avatar file is missing")
     }
+
+    const user = await User.findById(req.user?._id)
+
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
+
+    const oldAvatarPublicId = user.avatar?.public_id
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
 
-    if (!avatar.url) {
-        throw new ApiError(400, "error while uploding file on cloudinary")
+    if (!avatar?.url || !avatar?.public_id) {
+        throw new ApiError(500, "Error uploading avatar")
     }
 
-    const user = await User.findByIdAndUpdate(
-        req.body?._id,
-        {
-            $set: {
-                avatar: avatar.url
-            }
-        },
-        { new: true }
-    ).select("-password")
-
-    const avatarPublicId = avatar?.public_id
-
-    if (!avatarPublicId) {
-        throw new ApiError(400, "avatar public id not available")
+    user.avatar = {
+        url: avatar.url,
+        public_id: avatar.public_id
     }
-    await deleteFileFromCloudinary(avatarPublicId)
 
-    return res
-        .status(200)
-        .json(new apiResponse(201, user, "avatar image upload successfully"))
+    await user.save()
+
+    if (oldAvatarPublicId) {
+        await deleteFileFromCloudinary(oldAvatarPublicId)
+    }
+
+    return res.status(200).json(
+        new apiResponse(
+            200,
+            user,
+            "Avatar updated successfully"
+        )
+    )
 })
 
 const updateCover = asyncHandler(async (req, res) => {
@@ -288,26 +301,22 @@ const updateCover = asyncHandler(async (req, res) => {
         throw new ApiError(400, "error while uploding file on cloudinary")
     }
 
-    const user = await User.findByIdAndUpdate(
-        req.body?._id,
-        {
-            $set: {
-                cover: cover.url
-            }
-        },
-        { new: true }
-    ).select("-password")
+    const user = await User.findById(req.user?._id)
 
-    const coverPublicId = cover?.public_id
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
 
-    if (!coverPublicId) {
+    const oldCoverPublicId = user.cover?.public_id
+
+    if (!oldCoverPublicId) {
         throw new ApiError(400, "cover public id not available")
     }
-    await deleteFileFromCloudinary(coverPublicId)
+    await deleteFileFromCloudinary(oldCoverPublicId)
 
     return res
         .status(200)
-        .json(new apiResponse(201, user, "cover image upload successfully"))
+        .json(new apiResponse(200, user, "cover image upload successfully"))
 })
 
 export {
