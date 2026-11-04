@@ -45,8 +45,8 @@ router.route("/get-current-user").post(verifyJwt, getCurrentUser)
 
 router.route("/update-profile").post(verifyJwt, updateUserDetail)
 
-router.route("/update-avatar").post(upload.single("avatar"), updateAvatar)
+router.route("/update-avatar").post(verifyJwt, upload.single("avatar"), updateAvatar)
 
-router.route("/update-cover").post(upload.single("cover"), updateCover)
+router.route("/update-cover").post(verifyJwt, upload.single("cover"), updateCover)
 
 export default router

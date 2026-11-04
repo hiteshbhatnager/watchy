@@ -268,10 +268,8 @@ const updateAvatar = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Error uploading avatar")
     }
 
-    user.avatar = {
-        url: avatar.url,
-        public_id: avatar.public_id
-    }
+    user.avatar = avatar.url
+    user.avatarPublicId = avatar.public_id
 
     await user.save()
 
@@ -289,16 +287,11 @@ const updateAvatar = asyncHandler(async (req, res) => {
 })
 
 const updateCover = asyncHandler(async (req, res) => {
+
     const coverLocalPath = req.file?.path
 
     if (!coverLocalPath) {
-        throw new ApiError(400, "file is missing")
-    }
-
-    const cover = await uploadOnCloudinary(coverLocalPath)
-
-    if (!cover.url) {
-        throw new ApiError(400, "error while uploding file on cloudinary")
+        throw new ApiError(400, "Cover file is missing")
     }
 
     const user = await User.findById(req.user?._id)
@@ -309,14 +302,28 @@ const updateCover = asyncHandler(async (req, res) => {
 
     const oldCoverPublicId = user.cover?.public_id
 
-    if (!oldCoverPublicId) {
-        throw new ApiError(400, "cover public id not available")
-    }
-    await deleteFileFromCloudinary(oldCoverPublicId)
+    const cover = await uploadOnCloudinary(coverLocalPath)
 
-    return res
-        .status(200)
-        .json(new apiResponse(200, user, "cover image upload successfully"))
+    if (!cover?.url || !cover?.public_id) {
+        throw new ApiError(500, "Error uploading avatar")
+    }
+
+    user.cover = cover.url
+    user.coverPublicId = cover.public_id
+
+    await user.save()
+
+    if (oldCoverPublicId) {
+        await deleteFileFromCloudinary(oldCoverPublicId)
+    }
+
+    return res.status(200).json(
+        new apiResponse(
+            200,
+            user,
+            "cover image updated successfully"
+        )
+    )
 })
 
 export {
