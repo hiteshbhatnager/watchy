@@ -28,14 +28,30 @@ const uploadOnCloudinary = async (localFilePath) => {
 
 const deleteFileFromCloudinary = async (publicId) => {
     try {
-        if (!publicId) return
-        fs.unlinkSync(publicId) //remove the localy saved temporary file as the upload operation
-        await cloudinary.uploader.destroy(publicId)
-    } catch (error) {
-        fs.unlinkSync(publicId) //remove the localy saved temporary file as the upload operation
-        console.error("error on deleting file from cloudinary")
-        throw error
-    }
-}
+        if (!publicId) return null;
 
-export { uploadOnCloudinary, deleteFileFromCloudinary }
+        const result = await cloudinary.uploader.destroy(publicId, {
+            resource_type: "image"
+        });
+
+        console.log("Cloudinary deletion:", result);
+
+        return result;
+
+    } catch (error) {
+        console.error("Error deleting file from Cloudinary:", error);
+        throw error;
+    }
+};
+
+const deleteLocalFile = (localPath) => {
+    try {
+        if (localPath && fs.existsSync(localPath)) {
+            fs.unlinkSync(localPath);
+        }
+    } catch (error) {
+        console.error("Error deleting local file:", error);
+    }
+};
+
+export { uploadOnCloudinary, deleteFileFromCloudinary, deleteLocalFile }
