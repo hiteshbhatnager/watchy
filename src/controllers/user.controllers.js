@@ -28,9 +28,7 @@ const genrateRefreshAndAccessToken = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
 
     const { fullname, email, userName, password } = req.body
-    console.log({
-        "email": email,
-    })
+
 
     if (
         [fullname, email, userName, password].some((feild) => feild?.trim() === "")
@@ -86,6 +84,14 @@ const registerUser = asyncHandler(async (req, res) => {
     return res.status(201).json(
         new apiResponse(200, createdUser, "user register sucessfully", true)
     )
+})
+
+const regester = asyncHandler(async (req, res) => {
+    const { email, fullname, userName, password } = req.body;
+
+    if ([email, fullname, userName, password].some) {
+
+    }
 })
 
 const loginUser = asyncHandler(async (req, res) => {
