@@ -86,14 +86,6 @@ const registerUser = asyncHandler(async (req, res) => {
     )
 })
 
-const regester = asyncHandler(async (req, res) => {
-    const { email, fullname, userName, password } = req.body;
-
-    if ([email, fullname, userName, password].some) {
-
-    }
-})
-
 const loginUser = asyncHandler(async (req, res) => {
 
     const { email, userName, password } = req.body;
