@@ -336,16 +336,6 @@ const getUserChanelProfile = asyncHandler(async (req, res) => {
     }
 
     const channel = await User.aggregate([
-        {
-            $match: {
-                userName: userName?.toLowerCase()
-            }
-        },
-        {
-            $lookup: {
-
-            }
-        }
     ])
 })
 
