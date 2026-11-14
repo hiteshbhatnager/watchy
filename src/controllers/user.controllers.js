@@ -328,17 +328,6 @@ const updateCover = asyncHandler(async (req, res) => {
     )
 })
 
-const getUserChanelProfile = asyncHandler(async (req, res) => {
-    const { userName } = req.pramas
-
-    if (!userName.trim()) {
-        throw new ApiError(400, "user name is missing")
-    }
-
-    const channel = await User.aggregate([
-    ])
-})
-
 export {
     registerUser,
     loginUser,
