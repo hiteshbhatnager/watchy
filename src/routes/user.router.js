@@ -53,9 +53,9 @@ router.route("/update-cover").post(verifyJwt, upload.single("cover"), updateCove
 
 router.route("/get-channel-profile").post(getUserChanelProfile)
 
-router.route("/c/:username").get(verifyJwt, getUserChanelProfile),
+router.route("/c/:username").get(verifyJwt, getUserChanelProfile)
 
-    router.route("/watch-History").get(verifyJwt, getWatchHistory)
+router.route("/watch-History").get(verifyJwt, getWatchHistory)
 
 
 export default router
