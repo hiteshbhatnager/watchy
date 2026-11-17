@@ -9,7 +9,8 @@ import {
     updateUserDetail,
     updateAvatar,
     updateCover,
-    getUserChanelProfile
+    getUserChanelProfile,
+    getWatchHistory
 } from "../controllers/user.controllers.js";
 
 import verifyJwt from "../middleware/auth.middleware.js"
@@ -44,12 +45,17 @@ router.route("/change-password").post(verifyJwt, changeCurrentUserPass)
 
 router.route("/get-current-user").post(verifyJwt, getCurrentUser)
 
-router.route("/update-profile").post(verifyJwt, updateUserDetail)
+router.route("/update-profile").patch(verifyJwt, updateUserDetail)
 
 router.route("/update-avatar").post(verifyJwt, upload.single("avatar"), updateAvatar)
 
 router.route("/update-cover").post(verifyJwt, upload.single("cover"), updateCover)
 
 router.route("/get-channel-profile").post(getUserChanelProfile)
+
+router.route("/c/:username").get(verifyJwt, getUserChanelProfile),
+
+    router.route("/watch-History").get(verifyJwt, getWatchHistory)
+
 
 export default router
