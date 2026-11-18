@@ -330,7 +330,7 @@ const updateCover = asyncHandler(async (req, res) => {
 })
 
 const getUserChanelProfile = asyncHandler(async (req, res) => {
-    const { userName } = req.pramas
+    const { userName } = req.params
 
     if (!userName.trim()) {
         throw new ApiError(400, "user name is missing")
@@ -364,7 +364,7 @@ const getUserChanelProfile = asyncHandler(async (req, res) => {
                     $size: "$subscribers"
                 },
                 channelSubscribedToCount: {
-                    $size: "$subscibedTo"
+                    $size: "$subscribedTo"
                 },
                 isSubscribed: {
                     $cond: {
@@ -389,7 +389,6 @@ const getUserChanelProfile = asyncHandler(async (req, res) => {
         }
     ])
 
-    console.log(channel)
     if (!channel?.length) {
         throw new ApiError(400, "channel does not exist")
     }
@@ -405,7 +404,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
     const user = await User.aggregate([
         {
             $match: {
-                _id: mongoose.Types.ObjectId(req.user._id)
+                _id: new mongoose.Types.ObjectId(req.user._id)
             }
         },
         {
@@ -414,14 +413,14 @@ const getWatchHistory = asyncHandler(async (req, res) => {
                 localField: "watchHistory",
                 foreignField: "_id",
                 as: "watchHistory",
-                pipline: [
+                pipeline: [
                     {
                         $lookup: {
-                            form: "user",
+                            from: "users",
                             localField: "owner",
                             foreignField: "_id",
                             as: "owner",
-                            pipline: [
+                            pipeline: [
                                 {
                                     $project: {
                                         fullname: 1,
@@ -441,9 +440,6 @@ const getWatchHistory = asyncHandler(async (req, res) => {
                     }
                 ]
             }
-        },
-        {
-
         }
     ])
 

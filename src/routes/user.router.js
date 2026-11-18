@@ -51,9 +51,7 @@ router.route("/update-avatar").post(verifyJwt, upload.single("avatar"), updateAv
 
 router.route("/update-cover").post(verifyJwt, upload.single("cover"), updateCover)
 
-router.route("/get-channel-profile").post(getUserChanelProfile)
-
-router.route("/c/:username").get(verifyJwt, getUserChanelProfile)
+router.route("/c/:userName").get(verifyJwt, getUserChanelProfile)
 
 router.route("/watch-History").get(verifyJwt, getWatchHistory)
 
