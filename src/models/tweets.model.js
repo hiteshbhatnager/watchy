@@ -16,4 +16,4 @@ const tweetsSchema = new Schema(
     }
 )
 
-export const tweets = mongoose.model("tweets", tweetsSchema)
+export const Tweets = mongoose.model("Tweets", tweetsSchema)
