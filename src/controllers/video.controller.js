@@ -6,6 +6,28 @@ import { apiResponse } from "../utils/apiResponse.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
 
+    const limit = req.query.limit
+    const pages = req.query.pages
+
+    const skip = (pages - 1) * limit
+
+    const videos = await Video.find()
+        .populate("owner", "avatar userName fullname")
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+
+    if (!videos) {
+        throw new ApiError(400, "not able to fetch videos")
+    }
+
+    return res
+        .status(200)
+        .json(new apiResponse(
+            200,
+            videos,
+            "successfully fetched videos "
+        ))
 })
 
 const uploadVideo = asyncHandler(async (req, res) => {
@@ -58,5 +80,6 @@ const uploadVideo = asyncHandler(async (req, res) => {
 })
 
 export {
+    getAllVideos,
     uploadVideo
 }

@@ -2,11 +2,13 @@ import express from 'express';
 
 import verifyJwt from "../middleware/auth.middleware.js"
 import { upload } from "../middleware/multer.middleware.js"
-import { uploadVideo } from '../controllers/video.controller.js';
+import { getAllVideos, uploadVideo } from '../controllers/video.controller.js';
 
 const router = express.Router()
 
 router.use(verifyJwt)
+
+router.route("/").get(getAllVideos)
 
 router.route("/upload-video").post(
     upload.fields([
