@@ -2,7 +2,14 @@ import express from 'express';
 
 import verifyJwt from "../middleware/auth.middleware.js"
 import { upload } from "../middleware/multer.middleware.js"
-import { getAllVideos, uploadVideo } from '../controllers/video.controller.js';
+import {
+    getAllVideos,
+    getVideoById,
+    updateVideo,
+    uploadVideo,
+    deleteVideo,
+    togglePublishStatus
+} from '../controllers/video.controller.js';
 
 const router = express.Router()
 
@@ -23,5 +30,10 @@ router.route("/upload-video").post(
     ]),
     uploadVideo
 )
+
+router.route("/get-video/:videoId").get(getVideoById)
+router.route("/update-video/:videoId").patch(updateVideo)
+router.route("/delete-video/:videoId").delete(deleteVideo)
+router.route("/publish-toggle/:videoId").get(togglePublishStatus)
 
 export default router

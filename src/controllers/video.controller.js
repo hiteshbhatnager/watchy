@@ -3,6 +3,7 @@ import { ApiError } from "../utils/apiError.js";
 import { Video } from "../models/video.model.js";
 import { uploadOnCloudinary, deleteFileFromCloudinary, deleteLocalFile } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiResponse.js";
+import mongoose from "mongoose";
 
 const getAllVideos = asyncHandler(async (req, res) => {
 
@@ -31,12 +32,13 @@ const getAllVideos = asyncHandler(async (req, res) => {
 })
 
 const uploadVideo = asyncHandler(async (req, res) => {
-    const { title, discription } = req.body
+    const { title, discription, isPublish } = req.body
 
     if (
         [
             title,
-            discription
+            discription,
+            isPublish
         ].some(feild => feild?.trim()) == ""
     ) {
         throw new ApiError(400, "title and discription needed to upload video")
@@ -65,6 +67,7 @@ const uploadVideo = asyncHandler(async (req, res) => {
     const videoModule = await Video.create({
         title,
         discription,
+        isPublish,
         videoFile: video.url,
         thumbnail: thumbnail.url,
         duration: video.duration,
@@ -79,7 +82,109 @@ const uploadVideo = asyncHandler(async (req, res) => {
         )
 })
 
+const getVideoById = asyncHandler(async (req, res) => {
+
+    const { videoId } = req.params
+
+    const video = await Video.findById(videoId)
+    console.log(video)
+
+    if (!video) {
+        throw new ApiError(400, "video does not exist")
+    }
+
+    return res
+        .status(200)
+        .json(
+            new apiResponse(
+                200,
+                video,
+                "video fetched successfully"
+            )
+        )
+})
+
+const updateVideo = asyncHandler(async (req, res) => {
+
+    const { videoId } = req.params
+    const { title, discription } = req.body
+
+    if (
+        [
+            title,
+            discription
+        ].some(feild => feild?.trim() === "")) {
+        throw new ApiError(400, "title and description fields are required")
+    }
+
+    const video = await Video.findByIdAndUpdate(
+        videoId,
+        {
+            $set: {
+                title,
+                discription
+            }
+        },
+        { new: true }
+    )
+
+    return res
+        .status(200)
+        .json(
+            new apiResponse(
+                200,
+                video,
+                "video update successfully"
+            )
+        )
+})
+
+const deleteVideo = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+
+    if (!videoId) {
+        throw new ApiError(400, "video not exist")
+    }
+
+    const videoDelete = await Video.findByIdAndDelete(videoId)
+
+    console.log(videoDelete)
+    if (!videoDelete) {
+        throw new ApiError(400, "get error during deleting video")
+    }
+
+    return res
+        .status(200)
+        .json(
+            new apiResponse(200, videoDelete, "video delete successfully")
+        )
+})
+
+const togglePublishStatus = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+
+    if (!mongoose.isValidObjectId(videoId)) {
+        throw new ApiError(400, "video not found")
+    }
+
+    const video = await Video.findById(videoId)
+
+    video.isPublish = !video.isPublish;
+
+    await video.save()
+
+    return res
+        .status(200)
+        .json(
+            new apiResponse(200, video, "video publish status update")
+        )
+})
+
 export {
     getAllVideos,
-    uploadVideo
+    uploadVideo,
+    getVideoById,
+    updateVideo,
+    deleteVideo,
+    togglePublishStatus,
 }
