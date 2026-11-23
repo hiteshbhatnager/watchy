@@ -59,7 +59,10 @@ const uploadVideo = asyncHandler(async (req, res) => {
 
     const video = await uploadOnCloudinary(localVideoPath);
     const thumbnail = await uploadOnCloudinary(localThumbnailPath);
-    console.log(video.duration)
+
+    if (!(video || thumbnail)) {
+        throw new ApiError(400, "error while uploding video and thumnail in cloudinary")
+    }
 
     deleteLocalFile(localVideoPath);
     deleteLocalFile(localThumbnailPath);
@@ -75,6 +78,10 @@ const uploadVideo = asyncHandler(async (req, res) => {
 
     const createdVideo = await Video.findById(videoModule._id)
 
+    if (!videoModule) {
+        throw new ApiError(400, "video is not created error while creating")
+    }
+
     return res
         .status(200)
         .json(
@@ -87,7 +94,6 @@ const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
 
     const video = await Video.findById(videoId)
-    console.log(video)
 
     if (!video) {
         throw new ApiError(400, "video does not exist")
@@ -128,6 +134,10 @@ const updateVideo = asyncHandler(async (req, res) => {
         { new: true }
     )
 
+    if (!video) {
+        throw new ApiError(400, "error while updating video")
+    }
+
     return res
         .status(200)
         .json(
@@ -148,7 +158,6 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
     const videoDelete = await Video.findByIdAndDelete(videoId)
 
-    console.log(videoDelete)
     if (!videoDelete) {
         throw new ApiError(400, "get error during deleting video")
     }
