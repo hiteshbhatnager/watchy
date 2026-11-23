@@ -40,7 +40,9 @@ const addComment = asyncHandler(async (req, res) => {
         { content }
     )
 
-    if (!content) {
+    const createdComment = await Comments.findById(comment._id)
+
+    if (!createdComment) {
         ApiError(400, "error while adding content of comment")
     }
 
@@ -64,9 +66,7 @@ const editComment = asyncHandler(async (req, res) => {
     }
 
     const comments = await Comments.findByIdAndUpdate(
-        {
-            commentId
-        },
+        commentId,
         {
             $set: {
                 content
