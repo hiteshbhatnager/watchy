@@ -2,8 +2,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import { ApiError } from "../utils/apiError.js";
 import { Comments } from "../models/comments.model.js";
-import mongoose from "mongoose";
-import { application } from "express";
+import mongoose from "mongoose";;
 
 const getAllComment = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
@@ -35,10 +34,12 @@ const getAllComment = asyncHandler(async (req, res) => {
 
 const addComment = asyncHandler(async (req, res) => {
     const { content } = req.body
+    const { videoId } = req.params
 
-    const comment = await Comments.create(
-        { content }
-    )
+    const comment = await Comments.create({
+        content,
+        video: videoId,
+    })
 
     const createdComment = await Comments.findById(comment._id)
 
@@ -49,13 +50,13 @@ const addComment = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .json(
-            new apiResponse(200, comment, "comment successfully added")
+            new apiResponse(200, createdComment, "comment successfully added")
         )
 })
 
 const editComment = asyncHandler(async (req, res) => {
-    const commentId = req.params
-    const content = req.body;
+    const { commentId } = req.params
+    const { content } = req.body;
 
     if (!content) {
         throw new ApiError(400, "comment is required");
@@ -77,7 +78,7 @@ const editComment = asyncHandler(async (req, res) => {
         }
     )
 
-    if (comments) {
+    if (!comments) {
         throw new ApiError(400, "comment not found")
     }
 
@@ -89,13 +90,13 @@ const editComment = asyncHandler(async (req, res) => {
 })
 
 const deleteComment = asyncHandler(async (req, res) => {
-    const commentId = req.params
+    const { commentId } = req.params
 
     if (!mongoose.isValidObjectId(commentId)) {
         throw new ApiError(400, "coment on exist")
     }
 
-    const comment = await Comments.findByIdAndDelete({ commentId });
+    const comment = await Comments.findByIdAndDelete(commentId);
 
     if (!comment) {
         throw new ApiError(400, "error while deleting comment")

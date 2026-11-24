@@ -11,12 +11,12 @@ const router = express.Router();
 
 router.use(verifyJwt)
 
-router.route("/get-all-comments").get(getAllComment);
+router.route("/get-all-comments/:videoId").get(getAllComment);
 
-router.route("/add-comments").post(addComment)
+router.route("/add-comments/:videoId").post(addComment)
 
-router.route("/delete-comments").delete(deleteComment);
+router.route("/delete-comments/:commentId").delete(deleteComment);
 
-router.route("/edit-comments").patch(editComment)
+router.route("/edit-comments/:commentId").patch(editComment)
 
 export default router
