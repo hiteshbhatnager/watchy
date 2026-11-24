@@ -1,11 +1,11 @@
-import asyncHandler from "../utils/asyncHandler";
-import apiResponse from "../utils/apiResponse";
-import { ApiError } from "../utils/apiError";
-import { Comments } from "../models/comments.model";
+import asyncHandler from "../utils/asyncHandler.js";
+import { apiResponse } from "../utils/apiResponse.js";
+import { ApiError } from "../utils/apiError.js";
+import { Comments } from "../models/comments.model.js";
 import mongoose from "mongoose";
 import { application } from "express";
 
-const getAllComments = asyncHandler(async (req, res) => {
+const getAllComment = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
     const limit = Number(req.query.limit)
     const pages = Number(req.query.pages)
@@ -110,7 +110,7 @@ const deleteComment = asyncHandler(async (req, res) => {
 })
 
 export {
-    getAllComments,
+    getAllComment,
     addComment,
     deleteComment,
     editComment,
